@@ -1,0 +1,70 @@
+# 環境構築ログ
+
+## PHPのバージョンアップ ＋ 合わせてミドルウェア全体的にudpate
+
+```
+sudo amazon-linux-extras disable lamp-mariadb10.2-php7.2
+sudo amazon-linux-extras enable php7.4
+sudo yum -y install php
+sudo yum install -y php-mbstring
+sudo mv /etc/php.d/30-xdebug.ini /etc/php.d/30-xdebug.ini.bak
+sudo yum clean metadata
+sudo yum -y update
+```
+
+## MariaDB
+
+```
+sudo amazon-linux-extras enable mariadb10.5
+sudo yum -y install mariadb
+sudo systemctl start mariadb
+sudo mysql_secure_installation
+```
+
+## composer
+
+https://getcomposer.org/download/ 参照。    
+
+```
+php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+php -r "if (hash_file('sha384', 'composer-setup.php') === '906a84df04cea2aa72f40b5f787e49f22d4c2f19492ac310e8cba5b96ac8b64115ac402c8cd292b8a03482574915d1a8') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+php composer-setup.php
+php -r "unlink('composer-setup.php');"
+```
+
+その後で    
+
+```
+sudo mv composer.phar /usr/local/bin/composer
+```
+
+## Laravel
+
+```
+cd
+composer create-project laravel/laravel ./shopping_list --prefer-dist
+```
+
+## databaseとMariaDBアカウントの作成
+
+```
+mysql -u root -p
+```
+
+rootアカウントのコンソールから以下のSQL    
+
+```
+CREATE DATABASE shopping_list CHARACTER SET utf8mb4;
+CREATE USER 'shoppinguser'@'localhost' IDENTIFIED BY '**パスワード**';
+GRANT all ON shopping_list.* TO 'shoppinguser'@'localhost';
+```
+
+## GitHub用のキーペアの作成 ＋ 作成した公開鍵のGitHubへの登録
+
+```
+ssh-keygen
+cat ~/.ssh/id_rsa.pub 
+```
+
+画面に出力された公開鍵を https://github.com/settings/keys の画面から「New SSH key」で追加する。    
+
